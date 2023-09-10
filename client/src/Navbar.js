@@ -1,11 +1,10 @@
 import { Link } from 'react-router-dom';
 
 function Navbar({setLevel,activeLevel}){
-    const levels = ["A1","A2","A3","A4","A5"];
+    const levels = ["A1","A2","B1","B2","C1","C2"];
     return(
         <nav className="main-nav">
             <div className="nav-center">
-                {/*<h1 className="nav-header">German</h1>*/}
                 <div className="nav-links">
                     {levels.map(level =>
                         <button

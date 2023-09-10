@@ -2,36 +2,65 @@ import './index.css'
 import Navbar from "./Navbar";
 import Question from "./Question";
 import {useEffect, useState} from "react";
-const data = [
-    {
-        question:'wie gehts',
-        answer:'how are you',
-        isAnswered:false,
-        isCorrect:true,
-    },
-]
+import fetchData from "./api";
+import useKeyPress from "./UseKeyPress";
+import ErrorBox from "./ErrorBox";
+import Loading from "./Loading";
+
+const questionsUrl = "http://localhost:8000/questions";
 function App() {
     const [activeLevel,setActiveLevel] = useState("A1");
-    const [questions,setQuestions] = useState(data);
+    const [questions,setQuestions] = useState([]);
     const [activeQuestionIdx,setActiveQuestionIdx] = useState(0);
-    const url = "https://localhost:8000/"
+    const [error,setError] = useState(false);
+    const [loading,setLoading] = useState(true);
+
+    useKeyPress('ArrowRight',handleNext);
+    useKeyPress('ArrowLeft',handlePrevious);
+
     useEffect(() => {
+        setActiveQuestionIdx(0);
+        setError(false);
+        setLoading(true);
+        setQuestions([]);
         (async ()=>{
-           const data = await getQuestions(url);
-            /**
-             * retreive , set data
-             */
-           //setQuestions(data);
+            try{
+                const data = await fetchData(questionsUrl+`?level=${activeLevel}`);
+                setError(false);
+                setQuestions(data);
+            }catch (err){
+                console.log("Error");
+                setError(true);
+                setQuestions([]);
+            }
+            setLoading(false);
         })();
     }, [activeLevel]);
+    function handleNext(){
+        setActiveQuestionIdx(activeQuestionIdx+1 >= questions.length ? 0 : activeQuestionIdx+1);
+    }
+    function handlePrevious(){
+        setActiveQuestionIdx(activeQuestionIdx-1 < 0 ? questions.length-1 : activeQuestionIdx-1);
+    }
+
+    if(loading){
+        return <Loading/>
+    }
+    else if (error){
+        return <ErrorBox errorMessage="Server couldn't load data from server"/>
+    }
     return (
-        <>
+        <div className="App">
             <Navbar setLevel={setActiveLevel} activeLevel={activeLevel}/>
-            <Question activeQuestionIdx={activeQuestionIdx} questions={questions}/>
-        </>
+            <Question
+                activeQuestionIdx={activeQuestionIdx}
+                questions={questions}
+                setQuestions={setQuestions}
+                handlePrevious={handlePrevious}
+                handleNext={handleNext}
+            />
+        </div>
     );
 }
-async function getQuestions (url){
 
-}
 export default App;
