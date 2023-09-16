@@ -40,4 +40,4 @@ npm start
 - MongoDB Atlas - fully managed cloud database
 - HTML 
 - CSS
-- JS
+- ReactJs
